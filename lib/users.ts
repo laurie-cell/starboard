@@ -67,7 +67,7 @@ export async function getProfileByUsername(username: string) {
   return { data, error }
 }
 
-export async function updateUserProfile(updates: { bio?: string; profile_picture_url?: string | null }) {
+export async function updateUserProfile(updates: { bio?: string | null; profile_picture_url?: string | null }) {
   const { user } = await getCurrentUser()
 
   if (!user) {

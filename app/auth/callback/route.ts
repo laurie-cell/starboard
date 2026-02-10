@@ -11,7 +11,7 @@ export async function GET(request: Request) {
   const type = requestUrl.searchParams.get('type') // 'signup' or 'recovery'
 
   if (code) {
-    const cookieStore = cookies()
+    const cookieStore = await cookies()
 
     // Create Supabase client with type assertion to bypass TypeScript error
     // The cookies option is valid at runtime but not in TypeScript types for this version

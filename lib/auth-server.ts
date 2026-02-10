@@ -8,8 +8,8 @@ const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
 const TEST_MODE = process.env.NEXT_PUBLIC_TEST_MODE === 'true'
 
 // Server-side Supabase client for reading sessions from cookies
-function createServerClient() {
-  const cookieStore = cookies()
+async function createServerClient() {
+  const cookieStore = await cookies()
 
   // Use type assertion to bypass TypeScript error
   // The cookies option is valid at runtime but not in TypeScript types for this version
@@ -50,7 +50,7 @@ export async function getSession() {
     }
   }
 
-  const serverClient = createServerClient()
+  const serverClient = await createServerClient()
   const { data: { session }, error } = await serverClient.auth.getSession()
   return { session, error }
 }

@@ -3,17 +3,16 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { getSession } from '@/lib/auth'
-import { getEntries, Entry } from '@/lib/posts'
+import { getUserEntries, deleteEntry, Entry } from '@/lib/posts'
 import EntryCard from '@/components/EntryCard'
 import Navbar from '@/components/Navbar'
-import LandingPage from '@/components/LandingPage'
 import PageBackground from '@/components/PageBackground'
 
-export default function FeedPage() {
+export default function MyEntriesPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [entries, setEntries] = useState<Entry[] | null>(null)
   const [error, setError] = useState<string | null>(null)
-  const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [deletingId, setDeletingId] = useState<string | null>(null)
   const router = useRouter()
 
   useEffect(() => {
@@ -21,12 +20,9 @@ export default function FeedPage() {
       // Check auth first
       const { session } = await getSession()
       if (!session) {
-        setIsAuthenticated(false)
-        setIsLoading(false)
+        router.push('/login')
         return
       }
-
-      setIsAuthenticated(true)
 
       // Check if user has username
       const { getUserProfile } = await import('@/lib/users')
@@ -36,8 +32,8 @@ export default function FeedPage() {
         return
       }
 
-      // Load entries
-      const { data, error: entriesError } = await getEntries()
+      // Load user entries
+      const { data, error: entriesError } = await getUserEntries()
       if (entriesError) {
         setError(entriesError.message)
       } else {
@@ -47,6 +43,22 @@ export default function FeedPage() {
     }
     loadData()
   }, [router])
+
+  const handleDelete = async (entryId: string) => {
+    setDeletingId(entryId)
+    setError(null)
+
+    const { error: deleteError } = await deleteEntry(entryId)
+
+    if (deleteError) {
+      setError(deleteError.message || 'Failed to delete entry')
+      setDeletingId(null)
+    } else {
+      // Remove the entry from the local state
+      setEntries(prevEntries => prevEntries?.filter(e => e.id !== entryId) || null)
+      setDeletingId(null)
+    }
+  }
 
   if (isLoading) {
     return (
@@ -58,17 +70,12 @@ export default function FeedPage() {
     )
   }
 
-  // Show landing page if not authenticated
-  if (!isAuthenticated) {
-    return <LandingPage />
-  }
-
   return (
     <PageBackground>
       <Navbar />
       <main className="w-full px-4" style={{ paddingTop: '8px', paddingBottom: '8px' }}>
         <div className="parchment-container" style={{ width: '100%', minHeight: 'calc(100vh - 120px)' }}>
-          <h1 className="text-2xl font-light mb-8 starboard-title" style={{ color: '#f5f5f0', position: 'relative', zIndex: 1 }}>Public Feed</h1>
+          <h1 className="text-2xl font-light mb-8 starboard-title" style={{ color: '#f5f5f0', position: 'relative', zIndex: 1 }}>My Entries</h1>
           {error && (
             <div className="rounded-lg p-4 mb-4" style={{
               backgroundColor: 'rgba(255, 229, 229, 0.6)',
@@ -87,7 +94,15 @@ export default function FeedPage() {
           )}
           <div className="space-y-4" style={{ position: 'relative', zIndex: 1 }}>
             {entries?.map((entry) => (
-              <EntryCard key={entry.id} entry={entry} />
+              <EntryCard
+                key={entry.id}
+                entry={entry}
+                showPrivacyLabel={true}
+                showDecodeButton={true}
+                isOwnEntry={true}
+                showDeleteButton={true}
+                onDelete={handleDelete}
+              />
             ))}
           </div>
         </div>

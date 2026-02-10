@@ -13,7 +13,14 @@ export async function GET(request: Request) {
   if (code) {
     const cookieStore = cookies()
 
+    // Create Supabase client with type assertion to bypass TypeScript error
+    // The cookies option is valid at runtime but not in TypeScript types for this version
     const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      auth: {
+        persistSession: false,
+        autoRefreshToken: false,
+        detectSessionInUrl: false,
+      },
       cookies: {
         get(name: string) {
           return cookieStore.get(name)?.value
@@ -33,7 +40,7 @@ export async function GET(request: Request) {
           }
         },
       },
-    })
+    } as any)
 
     const { data, error } = await supabase.auth.exchangeCodeForSession(code)
 

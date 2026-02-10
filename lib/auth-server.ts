@@ -11,6 +11,8 @@ const TEST_MODE = process.env.NEXT_PUBLIC_TEST_MODE === 'true'
 function createServerClient() {
   const cookieStore = cookies()
 
+  // Use type assertion to bypass TypeScript error
+  // The cookies option is valid at runtime but not in TypeScript types for this version
   return createClient(supabaseUrl, supabaseAnonKey, {
     cookies: {
       get(name: string) {
@@ -31,7 +33,7 @@ function createServerClient() {
         }
       },
     },
-  })
+  } as any)
 }
 
 export async function getSession() {

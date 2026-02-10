@@ -25,7 +25,7 @@ export default function DitherBackground({
   mouseRadius = 1
 }: DitherBackgroundProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null)
-  const animationFrameRef = useRef<number>()
+  const animationFrameRef = useRef<number | undefined>(undefined)
   const mousePosRef = useRef({ x: 0, y: 0 })
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 })
 

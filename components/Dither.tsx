@@ -143,7 +143,6 @@ class RetroEffectImpl extends Effect {
       ['pixelSize', new THREE.Uniform(2.0)]
     ])
     super('RetroEffect', ditherFragmentShader, { uniforms })
-    this.uniforms = uniforms
   }
   set colorNum(v: number) {
     this.uniforms.get('colorNum')!.value = v
@@ -205,7 +204,7 @@ function DitheredWaves({
     waveSpeed: new THREE.Uniform(waveSpeed),
     waveFrequency: new THREE.Uniform(waveFrequency),
     waveAmplitude: new THREE.Uniform(waveAmplitude),
-    waveColor: new THREE.Uniform(new THREE.Color(...waveColor)),
+    waveColor: new THREE.Uniform(new THREE.Color(waveColor[0], waveColor[1], waveColor[2])),
     mousePos: new THREE.Uniform(new THREE.Vector2(0, 0)),
     enableMouseInteraction: new THREE.Uniform(enableMouseInteraction ? 1 : 0),
     mouseRadius: new THREE.Uniform(mouseRadius)
@@ -234,7 +233,7 @@ function DitheredWaves({
     if (u.waveAmplitude.value !== waveAmplitude) u.waveAmplitude.value = waveAmplitude
 
     if (!prevColor.current.every((v, i) => v === waveColor[i])) {
-      u.waveColor.value.set(...waveColor)
+      u.waveColor.value.set(waveColor[0], waveColor[1], waveColor[2])
       prevColor.current = [...waveColor]
     }
 
